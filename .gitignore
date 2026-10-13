@@ -1,0 +1,33 @@
+# --- Secrets: never commit ---
+.env
+*.env
+!*.env.example
+!.env.example
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*.kdbx
+*recovery*code*
+tailscale-authkey*
+
+# OMV configuration exports contain password hashes and possibly SMTP credentials
+config.xml
+*.config.xml
+omv-config-backup*
+
+# Raw discovery dumps may contain serial numbers / MACs / IPs.
+# Keep them locally; commit only the reviewed summary in docs/.
+discovery-raw/
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~

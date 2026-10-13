@@ -1,0 +1,40 @@
+# Jellyfin (Phase 8). Source of truth for the stack "jellyfin" in OMV Services → Compose.
+# Rules: compose/README.md. Variables: .env (on the NAS only), see .env.example.
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:12.2.20261005-225228   # pinned build; update deliberately
+    container_name: jellyfin
+    user: "2001:2001"                                # svc-jellyfin (users-and-permissions.md §3)
+    group_add:
+      - "${RENDER_GID}"                              # access to /dev/dri/renderD128 only (D-17)
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      - TZ=${TZ}
+      - JELLYFIN_PublishedServerUrl=http://192.168.10.250:8096
+    ports:
+      - "192.168.10.250:8096:8096"                   # LAN IP only, never 0.0.0.0
+    volumes:
+      - type: bind
+        source: /appdata/data/jellyfin/config
+        target: /config
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /appdata/data/jellyfin/cache
+        target: /cache
+        bind:
+          create_host_path: false
+      # If data1 is not mounted, the path does not exist and the container refuses to start
+      # (create_host_path: false) instead of seeing an empty library on the SSD.
+      - type: bind
+        source: /srv/dev-disk-by-uuid-aaaaaaaa-1111-4222-8333-444444444444/media
+        target: /media
+        read_only: true
+        bind:
+          create_host_path: false
+    restart: unless-stopped
